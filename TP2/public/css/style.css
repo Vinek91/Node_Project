@@ -1,0 +1,211 @@
+body {
+    margin: 0;
+}
+
+
+html {
+    background: #323333;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.all {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.sectioncontact {
+    background: #2d2d2d;
+    flex-grow: 0;
+    width: 26.25rem;
+    overflow-y: auto;
+    width: 25%;
+}
+
+.sectionmessage {
+    width: 75%;
+}
+
+.message {
+    display: flex;
+    margin-left: 5%;
+    height: 92%;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.message ul {
+    border-radius: 1.25rem;
+    text-align: left;
+    display: inline-block;
+    max-width: 25rem;
+    color: #fff;
+    margin-right: 1.25rem;
+    margin-left: 0;
+    padding: 1rem 2.25rem;
+
+}
+.container {}
+
+a {
+    text-decoration: none;
+    color: #fff;
+}
+
+.contact {
+    list-style-type: none;
+}
+
+.contact li {
+    color: white;
+    display: flex;
+    padding: 1rem 1.25rem;
+    width: 80%;
+    border: solid;
+    border-color: #333341;
+    margin: 0.75rem 0;
+}
+
+.barmessage input {
+    border-style: none;
+    background: transparent;
+    outline: none;
+}
+
+.barmessage button {
+    padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+}
+
+h1.demo {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: normal;
+    margin-bottom: 1rem;
+    color: #f5f6ff;
+}
+
+a.demo {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: normal;
+    color: rgba(202, 205, 239, 0.8);
+    margin-bottom: 3rem;
+}
+
+.demo-flex-spacer {
+    flex-grow: 1;
+}
+
+.barmessage {
+    display: flex;
+    flex-direction: column;
+    max-width: 1600px;
+    padding: 0 15px;
+    margin: 0 auto;
+}
+
+@-webkit-keyframes gradient {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+.webflow-style-input {
+    height: 16px;
+    position: relative;
+    display: flex;
+    width: 95%;
+    margin: 0 auto;
+    border-radius: 2px;
+    padding: 1rem 1.6rem 1.2rem;
+    background: rgba(57, 63, 84, 0.8);
+}
+
+.webflow-style-input:after {
+    content: "";
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 999;
+    height: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    background-position: 0% 0%;
+    background: linear-gradient(to right, #B294FF, #57E6E6, #FEFFB8, #57E6E6, #B294FF, #57E6E6);
+    background-size: 500% auto;
+    -webkit-animation: gradient 3s linear infinite;
+    animation: gradient 3s linear infinite;
+}
+
+.webflow-style-input input {
+    flex-grow: 1;
+    color: #BFD2FF;
+    font-size: 1rem;
+    line-height: 2.4rem;
+    vertical-align: middle;
+}
+
+.webflow-style-input input::-webkit-input-placeholder {
+    color: #7881A1;
+}
+
+.webflow-style-input button {
+    color: #7881A1;
+    font-size: 1.6rem;
+    line-height: 2.4rem;
+    display: flex;
+    transition: color 0.25s;
+    align-items: center;
+}
+
+
+.webflow-style-input button:hover {
+    color: #BFD2FF;
+}
+
+::-webkit-scrollbar-track
+{
+	
+	
+	background-color: transparent;
+}
+
+::-webkit-scrollbar
+{
+	width: 5px;
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 12px;
+	background-color: #7289da;
+}
+
+.message message_destinataire{
+    float: left;
+}
+
+
+.message message_emmeteur{
+    float: right;
+}

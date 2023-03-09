@@ -63,8 +63,10 @@ io.on('connection',(socket)=>{
     socket.on('message-prive', (message) => {
         console.log(socket.nickname+": "+message)
         socket.chat = message;
-        io.to(message.dest_id).emit('reception_message',message); // envoyer le message au socket correspondant à l'identifiant dest_id
-      });
+        
+        io.to(message.dest_id).emit('reception_message', message);
+        //socket.emit('reception_message', message);
+    });
 
     socket.on('disconnect',()=>{
         console.log(socket.nickname+" s'est déconnecter à "+new Date())

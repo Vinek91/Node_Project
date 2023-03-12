@@ -57,7 +57,7 @@ socket.on('reception_message', (contenu) => {
   lesMessages.push(messageObj); // Ajouter le message reçu dans le tableau lesMessages[]
  console.log("messages"+JSON.stringify(messageObj))
   salon(contenu.emet_id)
-  
+  checkUnread();
 
 });
 
@@ -89,8 +89,10 @@ socket.on('reception_utilisateur', (utilisateurs) => {
         console.log("voici le pseudo : "+utilisateur.pseudo_client)
         iddes = utilisateur.id_client;
         id_salon = utilisateur.id_client;
+        dest_id = utilisateur.id_client;
         console.log("dzxs"+iddes)
         console.log("salon "+id_salon)
+        console.log("destid "+id_salon)
         const messageContainer = document.getElementById('message-container');
         messageContainer.innerHTML = '';
       });
@@ -114,16 +116,13 @@ socket.on('reception_utilisateur', (utilisateurs) => {
 
 
 function salon(id) {
+  console.log('voici l id : '+id);
   const messageContainer = document.getElementById('message-container');
   messageContainer.innerHTML='';
 
   // Afficher chaque message dans le conteneur de messages
   lesMessages.forEach((message) => {
-    console.log("le salon "+message.salon)
-    console.log("l'id "+id)
-    
-    console.log("emet id : "+message.emet_id)
-    console.log("l'id courant : "+socket.id)
+    message.recu =false;
       const messageElem = document.createElement('div');
       if (message.emet_id === socket.id) {
         console.log("ça passe")
@@ -134,6 +133,7 @@ function salon(id) {
         // Si le message a été envoyé par un autre utilisateur, afficher son pseudo
         messageElem.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+message.pseudo + ' : ' +message.msg+'</ul>';
         messageContainer.appendChild(messageElem);
+        message.recu =true;
       }
       /*if (message.dest_id === socket.id) {
         // Si le message est un message privé pour l'utilisateur courant, afficher l'émetteur du message
@@ -141,6 +141,216 @@ function salon(id) {
         messageContainer.appendChild(messageElem);
       }*/
     
+  });
+}
+
+
+function checkUnread() {
+  const userListElem = document.getElementById('user-list');
+  const users = userListElem.getElementsByTagName('li');
+
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
+    const userId = user.getElementsByTagName('a')[0].getAttribute('onClick').match(/'([^']+)'/)[1];
+    const unreadElem = user.getElementsByClassName('unread')[0];
+
+    let unreadCount = 0;
+
+    lesMessages.forEach((message) => {
+      if (message.dest_id === socket.id && message.emet_id === userId && !message.recu) {
+        unreadCount++;
+      }
+    });
+
+    if (unreadCount > 0) {
+      if (!unreadElem) {
+        const unreadElem = document.createElement('span');
+        unreadElem.classList.add('unread');
+        user.appendChild(unreadElem);
+      }
+      unreadElem.innerText = unreadCount;
+
+      user.addEventListener('click', () => {
+        iddes = userId;
+        id_salon = userId;
+        dest_id = userId;
+        if (unreadElem) {
+          unreadElem.remove();
+        }
+        const messageContainer = document.getElementById('message-container');
+        messageContainer.innerHTML = '';
+      });
+    } else if (unreadElem) {
+      unreadElem.remove();
+    }
+  }
+}
+function checkUnread() {
+ 
+  const userListElem = document.getElementById('user-list');
+  const unreadCounts = {};
+
+  // Compter le nombre de messages non lus pour chaque utilisateur
+  lesMessages.forEach((message) => {
+    if (message.recu && message.dest_id === socket.id) {
+      if (unreadCounts[message.emet_id] === undefined) {
+        unreadCounts[message.emet_id] = 1;
+      } else {
+        unreadCounts[message.emet_id]++;
+      }
+    }
+  });
+
+  // Afficher le nombre de messages non lus à côté de chaque utilisateur dans la liste
+  userListElem.childNodes.forEach((userElem) => { 
+    const userId = userElem.childNodes[0].getAttribute('onclick').match(/'([^']+)'/)[1];
+      const unreadCount = unreadCounts[userId] || 0;
+      const unreadCountElem = document.createElement('span');
+    if (userElem.childNodes[0] && userElem.childNodes[0].tagName === "A") {
+     
+      unreadCountElem.className = 'unread-count';
+      unreadCountElem.innerText = unreadCount > 0 ? `(${unreadCount})` : '';
+      userElem.appendChild(unreadCountElem);
+      
+      userElem.addEventListener('click', () => {
+       /* if (unreadCount > 0) {
+          unreadCountElem.innerText = `(${unreadCount - 1})`;
+        } else {
+          unreadCountElem.innerText = '';
+        }*/
+      });
+      
+    }
+  });
+  
+}
+
+
+
+
+/*
+function checkUnread() {
+  const userListElem = document.getElementById('user-list');
+  const listItems = userListElem.getElementsByTagName('li');
+
+  for (let i = 0; i < listItems.length; i++) {
+    const anchorElem = listItems[i].getElementsByTagName('a')[0];
+    const destId = anchorElem.getAttribute('onClick').match(/'(.*?)'/)[1];
+    let countUnread = 0;
+
+    lesMessages.forEach((message) => {
+      if (message.dest_id === destId && !message.recu) {
+        countUnread++;
+      }
+    });
+
+    if (countUnread > 0) {
+      anchorElem.innerText = anchorElem.innerText.replace(/\(\d+\)/, '') + ` (${countUnread})`;
+    } else {
+      anchorElem.innerText = anchorElem.innerText.replace(/\(\d+\)/, '');
+    }
+
+    anchorElem.addEventListener('click', () => {
+      for (let j = 0; j < lesMessages.length; j++) {
+        if (lesMessages[j].dest_id === destId) {
+          lesMessages[j].recu = true;
+        }
+      }
+      checkUnread();
+    });
+  }
+}
+
+
+/*
+function checkUnread() {
+  const userListElem = document.getElementById('user-list');
+  const unreadCounts = {};
+
+  // Compter le nombre de messages non lus pour chaque utilisateur
+  lesMessages.forEach((message) => {
+    if (message.recu && message.dest_id === socket.id) {
+      if (unreadCounts[message.emet_id] === undefined) {
+        unreadCounts[message.emet_id] = 1;
+      } else {
+        unreadCounts[message.emet_id]++;
+      }
+    }
+  });
+
+  // Afficher le nombre de messages non lus à côté de chaque utilisateur dans la liste
+  userListElem.childNodes.forEach((userElem) => {
+    if (userElem.childNodes[0] && userElem.childNodes[0].tagName === "A") {
+      const userId = userElem.childNodes[0].getAttribute('onclick').match(/'([^']+)'/)[1];
+      const unreadCount = unreadCounts[userId] || 0;
+      const unreadCountElem = document.createElement('span');
+      unreadCountElem.className = 'unread-count';
+      unreadCountElem.innerText = unreadCount > 0 ? `(${unreadCount})` : '';
+      userElem.appendChild(unreadCountElem);
+    }
+  });
+}
+
+/*
+function checkUnread() {
+  const userListElem = document.getElementById('user-list');
+  const users = userListElem.querySelectorAll('li');
+  for (let i = 0; i < users.length; i++) {
+    const userId = users[i].querySelector('a').getAttribute('data-id');
+    let count = 0;
+ 
+    for (let j = 0; j < lesMessages.length; j++) {
+      const message = lesMessages[j];
+      if (message.emet_id === userId && message.recu === true) {
+        count++;
+      }
+    }
+    const badge = users[i].querySelector('.badge');
+    if (badge) {
+      badge.innerText = count;
+    } else {
+      const badgeElem = document.createElement('span');
+      badgeElem.classList.add('badge');
+      badgeElem.innerText = count;
+      users[i].appendChild(badgeElem);
+    }
+  }
+}
+
+
+/*
+function checkUnread() {
+  const unreadcount = document.getElementById('unread-count');
+  var unreadCount = 0;
+  for (var i = 0; i < lesMessages.length; i++) {
+    if (lesMessages[i].recu === true) {
+      unreadCount++;
+    }
+  }
+  if (unreadCount > 0) {
+    const messageElement = document.createElement('div');
+    messageElement.innerHTML ="(" + unreadCount + ")";
+    unreadcount.appendChild(messageElement);
+  } else {
+    document.title = "Chat";
+   
+  }
+}
+
+/*
+function checkUnread() {
+  const userListElem = document.getElementById('user-list');
+  const messages = lesMessages.filter((msg) => msg.recu === false && msg.dest_id === socket.id);
+  userListElem.childNodes.forEach((child) => {
+    const pseudo = child.firstChild.innerText;
+    const badgeElem = document.createElement('span');
+    badgeElem.className = 'badge badge-primary badge-pill';
+    const userMsgs = messages.filter((msg) => msg.pseudo === pseudo);
+    if (userMsgs.length > 0) {
+      badgeElem.innerText = userMsgs.length;
+    }
+    console.log("nombre badge "+badgeElem)
+    child.appendChild(badgeElem);
   });
 }
 
@@ -206,7 +416,6 @@ function salon(id) {
   });
   check_unread();
 }
-
 function check_unread() {
   // Compter le nombre de messages non lus pour chaque salon et mettre à jour le badge de notifications correspondant
   const badges = document.getElementsByClassName('badge');
@@ -264,7 +473,6 @@ function salon(id) {
   });
   check_unread();
 }
-
   function check_unread() {
     var socket = io();
     var badges = document.querySelectorAll('.badge');

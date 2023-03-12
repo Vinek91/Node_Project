@@ -9,8 +9,10 @@
 </head>
 
 <body onload="salon('salon')">
+    <input type="hidden" id="current-salon" value="salon">
     <div class="all">
         <section class="sectioncontact">
+            <span id="unread-count"></span>
             <ul class="container">
                 <a href="#" onclick="salon('salon')">Salon</a>
                 <li id="user-list" class="contact"></li>

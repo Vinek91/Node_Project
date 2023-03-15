@@ -33,6 +33,25 @@ html {
     height: 92%;
     flex-direction: column;
     overflow-y: auto;
+   
+}
+
+.messageprivee {
+    position: fixed;
+    top: 0%;
+    left: 30%;
+}
+
+.messageprivee ul {
+    border-radius: 1.25rem;
+    text-align: left;
+    display: inline-block;
+    max-width: 25rem;
+    color: #fff;
+    margin-right: 1.25rem;
+    margin-left: 0;
+    padding: 1rem 2.25rem;
+
 }
 
 .message ul {
@@ -46,7 +65,7 @@ html {
     padding: 1rem 2.25rem;
 
 }
-.container {}
+
 
 a {
     text-decoration: none;
@@ -209,3 +228,4 @@ a.demo {
 .message message_emmeteur{
     float: right;
 }
+

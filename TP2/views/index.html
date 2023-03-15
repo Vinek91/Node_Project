@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 
-<body onload="salon('salon')">
+<body>
     <input type="hidden" id="current-salon" value="salon">
     <div class="all">
         <section class="sectioncontact">
@@ -20,6 +20,7 @@
         </section>
         <section class="sectionmessage">
             <div id="message-container" class="message"></div>
+            <div id="message-privee" class="messageprivee"></div>
             <div class="barmessage">
                 <form id="form" action="" class="input">
                     <div class="demo-flex-spacer"></div>
@@ -36,3 +37,25 @@
 </body>
 
 </html>
+
+<script>
+
+    // Récupérer la liste d'utilisateurs et le conteneur de messages privés
+var $userList = $('#user-list');
+var $privateMessageContainer = $('#message-privee');
+
+// Détecter le clic sur un élément de liste d'utilisateurs
+$userList.on('click', 'li', function() {
+  // Récupérer l'ID de l'utilisateur sélectionné
+  var userID = $(this).attr('data-user-id');
+  
+  // Afficher ou masquer le conteneur de messages privés en fonction de l'ID de l'utilisateur sélectionné
+  if (userID) {
+    // Afficher le conteneur de messages privés
+    $privateMessageContainer.show();
+  } else {
+    // Masquer le conteneur de messages privés
+    $privateMessageContainer.hide();
+  }
+});
+</script>

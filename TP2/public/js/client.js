@@ -2,7 +2,7 @@ var socket = io();
 var iddes = null;
 var pseudoname = null;
 var dest_id = null;
-socket.emit('set-pseudo',prompt("Pseudo ?"));
+//socket.emit('set-pseudo',prompt("Pseudo ?"));
 
 
 var recipientInput = document.getElementById('recipient-input'); // Ajouter le champ de saisie pour le destinataire
@@ -82,7 +82,7 @@ socket.on('reception_utilisateur', (utilisateurs) => {
   
       
       const pseudoElem = document.createElement('li');
-      pseudoElem.innerHTML = '<a href="#" onClick="salon(\'' + utilisateur.id_client + '\')" >' + utilisateur.pseudo_client + '</a>';
+      pseudoElem.innerHTML = '<a href="#" onClick="startPrivateConversation(\'' + utilisateur.id_client + '\', \'' + utilisateur.pseudo_client + '\')" >' + utilisateur.pseudo_client + '</a>';
       userListElem.appendChild(pseudoElem);
 
       pseudoElem.addEventListener('click', () => {
@@ -100,7 +100,7 @@ socket.on('reception_utilisateur', (utilisateurs) => {
     if (utilisateur.id_client == socket.id && utilisateur.pseudo_client != null && utilisateur.pseudo_client != undefined ) {
       pseudoname=utilisateur.pseudo_client;
       const pseudoElem = document.createElement('li');
-      pseudoElem.innerHTML = '<a href="#" onClick="salon(\'' + utilisateur.id_client + '\')" >' + utilisateur.pseudo_client+'(you)' + '</a>';
+      pseudoElem.innerHTML = '<a href="#" onClick="startPrivateConversation(\'' + utilisateur.id_client + '\', \'' + utilisateur.pseudo_client + '\')" >' + utilisateur.pseudo_client+'(you)' + '</a>';
       userListElem.appendChild(pseudoElem);
 
       pseudoElem.addEventListener('click', () => {
@@ -115,6 +115,40 @@ socket.on('reception_utilisateur', (utilisateurs) => {
 });
 
 
+function startPrivateConversation(dest_id, dest_pseudo) {
+  const messageprivee = document.getElementById('message-privee');
+  messageprivee.innerHTML = '';
+
+  // Créer une nouvelle salle de discussion pour la conversation privée
+  const privateRoomName = dest_id;
+  socket.emit('creer_salon_prive', privateRoomName);
+
+  // Mettre à jour l'ID de la salle de discussion actuelle
+  id_salon = privateRoomName;
+  dest_id = dest_id;
+  console.log('Destination ID : ' + dest_id);
+
+  // Vider le contenu des messages du salon stockés dans le message-container
+  const messageContainer = document.getElementById('message-container');
+  messageContainer.innerHTML = '';
+
+  // Afficher le contenu de la conversation privée dans le conteneur de messages
+  lesMessages.forEach((message) => {
+    if ((message.emet_id === socket.id && message.dest_id === dest_id) || (message.emet_id === dest_id && message.dest_id === socket.id)) {
+      const messageElem = document.createElement('div');
+      if (message.emet_id === socket.id) {
+        messageprivee.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
+        messageContainer.appendChild(messageElem);
+      } else if (message.emet_id === dest_id) {
+        messageprivee.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+dest_pseudo + ' : ' +message.msg+'</ul>';
+        messageContainer.appendChild(messageElem);
+
+      }
+    }
+  })
+}
+
+
 function salon(id) {
   console.log('voici l id : '+id);
   const messageContainer = document.getElementById('message-container');
@@ -124,67 +158,30 @@ function salon(id) {
   lesMessages.forEach((message) => {
     message.recu =false;
       const messageElem = document.createElement('div');
-      if (message.emet_id === socket.id) {
-        console.log("ça passe")
-        // Si le message a été envoyé par l'utilisateur courant, le mettre en gras
-        messageElem.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
-        messageContainer.appendChild(messageElem);
-      } else if (message.emet_id !== socket.id) {
-        // Si le message a été envoyé par un autre utilisateur, afficher son pseudo
-        messageElem.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+message.pseudo + ' : ' +message.msg+'</ul>';
-        messageContainer.appendChild(messageElem);
-        message.recu =true;
+      if(message.dest_id == null){
+          if (message.emet_id === socket.id) {
+          console.log("ça passe")
+          // Si le message a été envoyé par l'utilisateur courant, le mettre en gras
+          messageElem.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
+          messageContainer.appendChild(messageElem);
+        } else if (message.emet_id !== socket.id) {
+          // Si le message a été envoyé par un autre utilisateur, afficher son pseudo
+          messageElem.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+message.pseudo + ' : ' +message.msg+'</ul>';
+          messageContainer.appendChild(messageElem);
+          message.recu =true;
+        }
+        /*if (message.dest_id === socket.id) {
+          // Si le message est un message privé pour l'utilisateur courant, afficher l'émetteur du message
+          messageElem.innerHTML += '<span style="font-size: 10px; color: grey;"> de ' + message.pseudo + '</span>';
+          messageContainer.appendChild(messageElem);
+        }*/
       }
-      /*if (message.dest_id === socket.id) {
-        // Si le message est un message privé pour l'utilisateur courant, afficher l'émetteur du message
-        messageElem.innerHTML += '<span style="font-size: 10px; color: grey;"> de ' + message.pseudo + '</span>';
-        messageContainer.appendChild(messageElem);
-      }*/
+      
     
   });
 }
 
 
-function checkUnread() {
-  const userListElem = document.getElementById('user-list');
-  const users = userListElem.getElementsByTagName('li');
-
-  for (let i = 0; i < users.length; i++) {
-    const user = users[i];
-    const userId = user.getElementsByTagName('a')[0].getAttribute('onClick').match(/'([^']+)'/)[1];
-    const unreadElem = user.getElementsByClassName('unread')[0];
-
-    let unreadCount = 0;
-
-    lesMessages.forEach((message) => {
-      if (message.dest_id === socket.id && message.emet_id === userId && !message.recu) {
-        unreadCount++;
-      }
-    });
-
-    if (unreadCount > 0) {
-      if (!unreadElem) {
-        const unreadElem = document.createElement('span');
-        unreadElem.classList.add('unread');
-        user.appendChild(unreadElem);
-      }
-      unreadElem.innerText = unreadCount;
-
-      user.addEventListener('click', () => {
-        iddes = userId;
-        id_salon = userId;
-        dest_id = userId;
-        if (unreadElem) {
-          unreadElem.remove();
-        }
-        const messageContainer = document.getElementById('message-container');
-        messageContainer.innerHTML = '';
-      });
-    } else if (unreadElem) {
-      unreadElem.remove();
-    }
-  }
-}
 function checkUnread() {
  
   const userListElem = document.getElementById('user-list');
@@ -224,8 +221,6 @@ function checkUnread() {
   });
   
 }
-
-
 
 
 /*

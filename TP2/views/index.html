@@ -9,53 +9,32 @@
 </head>
 
 <body>
-    <input type="hidden" id="current-salon" value="salon">
+    <input type="hidden" id="current-salon" value="salon"> <!-- Champ caché qui stocke le nom du salon actuel -->
     <div class="all">
         <section class="sectioncontact">
-            <span id="unread-count"></span>
+            <span id="unread-count"></span> <!-- Nombre de messages non lus -->
             <ul class="container">
-                <a href="#" onclick="salon('salon')">Salon</a>
-                <li id="user-list" class="contact"></li>
+                <a href="#" onclick="salon('salon')">Salon</a> <!-- Bouton pour accéder au salon principal -->
+                <li id="user-list" class="contact"></li> <!-- Liste des utilisateurs connectés -->
             </ul>
         </section>
         <section class="sectionmessage">
-            <div id="message-container" class="message"></div>
-            <div id="message-privee" class="messageprivee"></div>
+            <div id="message-container" class="message"></div> <!-- Conteneur des messages du salon principal -->
+            <div id="message-privee" class="messageprivee"></div> <!-- Conteneur des messages privés -->
             <div class="barmessage">
                 <form id="form" action="" class="input">
                     <div class="demo-flex-spacer"></div>
                     <div class="webflow-style-input">
-                        <input id="input" type="input" placeholder="Message"></input>
-                        <button id="input" type="submit"><i class="icon ion-android-arrow-forward"></i></button>
+                        <input id="input" type="input" placeholder="Message"></input> <!-- Champ pour taper un message -->
+                        <button id="input" type="submit"><i class="icon ion-android-arrow-forward"></i></button> <!-- Bouton pour envoyer le message -->
                 </div>
                 </form>
             </div>
         </section>
     </div>
-    <script src="socket.io/socket.io.js"></script>
-    <script src="script"></script>
+    <script src="socket.io/socket.io.js"></script> <!-- Lien vers la bibliothèque socket.io pour la communication temps réel -->
+    <script src="script"></script> <!-- Lien vers le script principal -->
 </body>
 
 </html>
 
-<script>
-
-    // Récupérer la liste d'utilisateurs et le conteneur de messages privés
-var $userList = $('#user-list');
-var $privateMessageContainer = $('#message-privee');
-
-// Détecter le clic sur un élément de liste d'utilisateurs
-$userList.on('click', 'li', function() {
-  // Récupérer l'ID de l'utilisateur sélectionné
-  var userID = $(this).attr('data-user-id');
-  
-  // Afficher ou masquer le conteneur de messages privés en fonction de l'ID de l'utilisateur sélectionné
-  if (userID) {
-    // Afficher le conteneur de messages privés
-    $privateMessageContainer.show();
-  } else {
-    // Masquer le conteneur de messages privés
-    $privateMessageContainer.hide();
-  }
-});
-</script>

@@ -30,7 +30,9 @@ form.addEventListener("submit", (e) => {
 
   // Vérification du salon dans lequel le message doit être envoyé
   if (id_salon === 'salon') { // si on est dans le salon général
+   
     socket.emit('emission_message', message); // envoyer le message à tous les utilisateurs
+    
   } else {
     socket.emit('message-prive', message); // envoyer le message à un utilisateur spécifique
   }
@@ -55,7 +57,7 @@ socket.on('reception_message', (contenu) => {
   
   lesMessages.push(messageObj); // Ajouter le message reçu dans le tableau lesMessages[]
   console.log("messages"+JSON.stringify(messageObj))
-  salon(contenu.emet_id) // Mettre à jour le salon pour l'émetteur
+  salon(id_salon) // Mettre à jour le salon pour l'émetteur
   checkUnread(); // Vérifier les messages non lus pour l'utilisateur
   
 });
@@ -123,7 +125,7 @@ socket.on('reception_utilisateur', (utilisateurs) => {
   });
 });
 
-
+/*
 function startPrivateConversation(dest_id, dest_pseudo) {
   const messageprivee = document.getElementById('message-privee');
   messageprivee.innerHTML = '';
@@ -136,9 +138,10 @@ function startPrivateConversation(dest_id, dest_pseudo) {
   id_salon = privateRoomName;
   dest_id = dest_id;
   console.log('Destination ID : ' + dest_id);
+  
 
   // Vider le contenu des messages du salon stockés dans le message-container
-  const messageContainer = document.getElementById('message-container');
+  const messageContainer = document.getElementById('message-privee');
   messageContainer.innerHTML = '';
 
   // Afficher le contenu de la conversation privée dans le conteneur de messages
@@ -155,9 +158,46 @@ function startPrivateConversation(dest_id, dest_pseudo) {
       }
     }
   })
+  
 }
+*/
 
+function salon(id) {
+  // On affecte l'id du salon choisi à id_salon
+  id_salon = id;
 
+  // On vide la liste des messages
+  messages.innerHTML = "";
+
+  lesMessages.forEach((contenu) => {
+      //console.log("destinataire : " + contenu.dest_ID + ", salon : " + id_salon); // DEBUG MODE
+      // Pour chaque message, on vérifie si le message est destiné au salon général ou à un salon privé
+      if (contenu.dest_ID === id_salon || contenu.emet_id === id_salon && contenu.dest_ID !== "salon") {
+
+          //console.log(contenu); // DEBUG MODE
+          const li = document.createElement ("LI");
+          li.innerHTML = contenu.pseudo + " : " + contenu.msg;
+          messages.appendChild (li);
+          contenu.recu = true;
+          if (contenu.image) {
+              const img = document.createElement ("img");
+              img.src = contenu.image;
+              img.setAttribute("class", "img-fluid");
+              img.setAttribute("width", "200");
+              // center image img.setAttribute("class", "mx-auto d-block");
+              img.setAttribute ("alt", "Responsive image");
+              // réduire la taille de l'image
+              messages.appendChild (img);
+          }
+      }
+  })
+
+  // On va remettre à zéro les badges de notification
+  if (id_salon !== 'general') {
+      document.getElementById(id_salon+"_notif").innerHTML="";
+  }
+}
+/*
 function salon(id) {
   
   console.log('voici l id : '+id);
@@ -186,7 +226,7 @@ function salon(id) {
   });
 }
 
-
+*/
 function checkUnread() {
  
   const userListElem = document.getElementById('user-list');

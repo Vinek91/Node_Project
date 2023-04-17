@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <input type="hidden" id="current-salon" value="salon"> <!-- Champ caché qui stocke le nom du salon actuel -->
+    <!--<input type="hidden" id="current-salon" value="salon"> <!-- Champ caché qui stocke le nom du salon actuel -->
     <div class="all">
         <section class="sectioncontact">
             <span id="unread-count"></span> <!-- Nombre de messages non lus -->
@@ -19,6 +19,7 @@
             </ul>
         </section>
         <section class="sectionmessage">
+            <ul class="list-unstyled" id="messages"></ul>
             <div id="message-container" class="message"></div> <!-- Conteneur des messages du salon principal -->
             <div id="message-privee" class="messageprivee"></div> <!-- Conteneur des messages privés -->
             <div class="barmessage">

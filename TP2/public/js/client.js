@@ -12,6 +12,9 @@ var form = document.getElementById('form');
 var input = document.getElementById('input');
 var id_salon= 'salon';
 var lesMessages = [];
+const messageprivee = document.getElementById('message-privee');
+const messagegeneral = document.getElementById('message-container');
+const title  = document.getElementById('chat-title');
 
 // Écouteur d'événement sur le formulaire de saisie de message
 form.addEventListener("submit", (e) => {
@@ -27,13 +30,16 @@ form.addEventListener("submit", (e) => {
   recu : false,     //indique le recu
   salon: id_salon // Ajouter l'ID du salon dans le message
 };
-
+console.log("wtf : "+message.salon);
   // Vérification du salon dans lequel le message doit être envoyé
   if (id_salon === 'salon') { // si on est dans le salon général
-   
+    console.log("ca passe en general")
+    message.dest_id=null;
+    
     socket.emit('emission_message', message); // envoyer le message à tous les utilisateurs
     
   } else {
+    console.log("ca passe en privee")
     socket.emit('message-prive', message); // envoyer le message à un utilisateur spécifique
   }
 
@@ -57,8 +63,9 @@ socket.on('reception_message', (contenu) => {
   
   lesMessages.push(messageObj); // Ajouter le message reçu dans le tableau lesMessages[]
   console.log("messages"+JSON.stringify(messageObj))
-  salon(id_salon) // Mettre à jour le salon pour l'émetteur
-  checkUnread(); // Vérifier les messages non lus pour l'utilisateur
+  
+  salon(contenu.dest_id) // Mettre à jour le salon pour l'émetteur
+
   
 });
 
@@ -116,8 +123,6 @@ socket.on('reception_utilisateur', (utilisateurs) => {
     // Ajout d'un événement de clic sur l'élément de liste pour lancer la conversation privée correspondante
     pseudoElem.addEventListener('click', () => {
       console.log("voici le pseudo : "+utilisateur.pseudo_client)
-      iddes = utilisateur.id_client;
-      id_salon = utilisateur.id_client;
       const messageContainer = document.getElementById('message-container');
       messageContainer.innerHTML = '';
     });
@@ -125,9 +130,9 @@ socket.on('reception_utilisateur', (utilisateurs) => {
   });
 });
 
-/*
+
 function startPrivateConversation(dest_id, dest_pseudo) {
-  const messageprivee = document.getElementById('message-privee');
+  
   messageprivee.innerHTML = '';
 
   // Créer une nouvelle salle de discussion pour la conversation privée
@@ -141,94 +146,76 @@ function startPrivateConversation(dest_id, dest_pseudo) {
   
 
   // Vider le contenu des messages du salon stockés dans le message-container
-  const messageContainer = document.getElementById('message-privee');
-  messageContainer.innerHTML = '';
-
+  messagegeneral.innerHTML = '';
+  
+  title.innerText = 'Chat privé avec ' + dest_pseudo;
   // Afficher le contenu de la conversation privée dans le conteneur de messages
   lesMessages.forEach((message) => {
     if ((message.emet_id === socket.id && message.dest_id === dest_id) || (message.emet_id === dest_id && message.dest_id === socket.id)) {
       const messageElem = document.createElement('div');
       if (message.emet_id === socket.id) {
-        messageprivee.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
-        messageContainer.appendChild(messageElem);
-      } else if (message.emet_id === dest_id) {
-        messageprivee.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+dest_pseudo + ' : ' +message.msg+'</ul>';
-        messageContainer.appendChild(messageElem);
+        console.log("ca passe en privée")
+        messageElem.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
+        messageprivee.appendChild(messageElem);
 
+      } else if (message.emet_id === dest_id) {
+        console.log("ca passe en privée")
+        messageElem.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+dest_pseudo + ' : ' +message.msg+'</ul>';
+        messageprivee.appendChild(messageElem);
+        checkUnread();
       }
+      
     }
+   
   })
   
 }
-*/
+
 
 function salon(id) {
-  // On affecte l'id du salon choisi à id_salon
-  id_salon = id;
+  title.innerHTML=""; //remmetre le titre à zeros
+  this.id_salon=id_salon;
 
-  // On vide la liste des messages
-  messages.innerHTML = "";
-
-  lesMessages.forEach((contenu) => {
-      //console.log("destinataire : " + contenu.dest_ID + ", salon : " + id_salon); // DEBUG MODE
-      // Pour chaque message, on vérifie si le message est destiné au salon général ou à un salon privé
-      if (contenu.dest_ID === id_salon || contenu.emet_id === id_salon && contenu.dest_ID !== "salon") {
-
-          //console.log(contenu); // DEBUG MODE
-          const li = document.createElement ("LI");
-          li.innerHTML = contenu.pseudo + " : " + contenu.msg;
-          messages.appendChild (li);
-          contenu.recu = true;
-          if (contenu.image) {
-              const img = document.createElement ("img");
-              img.src = contenu.image;
-              img.setAttribute("class", "img-fluid");
-              img.setAttribute("width", "200");
-              // center image img.setAttribute("class", "mx-auto d-block");
-              img.setAttribute ("alt", "Responsive image");
-              // réduire la taille de l'image
-              messages.appendChild (img);
-          }
-      }
-  })
-
-  // On va remettre à zéro les badges de notification
-  if (id_salon !== 'general') {
-      document.getElementById(id_salon+"_notif").innerHTML="";
+  if (id==null){
+  }else{
+    id_salon=id;  //dans le cas des messages privées
   }
-}
-/*
-function salon(id) {
   
   console.log('voici l id : '+id);
-  const messageContainer = document.getElementById('message-container');
-  messageContainer.innerHTML='';
 
+  messageprivee.innerHTML='';
+  messagegeneral.innerHTML='';
+
+  console.log("voici le dest id "+dest_id)
   // Afficher chaque message dans le conteneur de messages
+  
   lesMessages.forEach((message) => {
     message.recu =false;
       const messageElem = document.createElement('div');
+      console.log("voici le destid ca mere : "+message.dest_id)
       if(message.dest_id == null){
           if (message.emet_id === socket.id) {
           console.log("ça passe")
           // Si le message a été envoyé par l'utilisateur courant, le mettre en gras
           messageElem.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
-          messageContainer.appendChild(messageElem);
+          messagegeneral.appendChild(messageElem);
         } else if (message.emet_id !== socket.id) {
           // Si le message a été envoyé par un autre utilisateur, afficher son pseudo
           messageElem.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+message.pseudo + ' : ' +message.msg+'</ul>';
-          messageContainer.appendChild(messageElem);
+          messagegeneral.appendChild(messageElem);
           message.recu =true;
         }
       }
       
     
   });
+  checkUnread();
 }
 
-*/
+
 function checkUnread() {
  
+  
   const userListElem = document.getElementById('user-list');
   const unreadCounts = {};
 

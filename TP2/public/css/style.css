@@ -30,7 +30,7 @@ html {
 .message {
     display: flex;
     margin-left: 5%;
-    height: 92%;
+    height: 88%;
     flex-direction: column;
     overflow-y: auto;
    
@@ -229,3 +229,10 @@ a.demo {
     float: right;
 }
 
+.salon {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: normal;
+    margin-bottom: 1rem;
+    color: #c52121;
+}

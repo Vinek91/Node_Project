@@ -29,17 +29,15 @@ form.addEventListener("submit", (e) => {
   date : laDate.toLocaleDateString()+' - '+laDate.toLocaleDateString(),
   recu : false,     //indique le recu
   salon: id_salon // Ajouter l'ID du salon dans le message
-};
-console.log("wtf : "+message.salon);
+  };
+
   // Vérification du salon dans lequel le message doit être envoyé
   if (id_salon === 'salon') { // si on est dans le salon général
-    console.log("ca passe en general")
     message.dest_id=null;
     
     socket.emit('emission_message', message); // envoyer le message à tous les utilisateurs
     
   } else {
-    console.log("ca passe en privee")
     socket.emit('message-prive', message); // envoyer le message à un utilisateur spécifique
   }
 
@@ -105,9 +103,6 @@ socket.on('reception_utilisateur', (utilisateurs) => {
       iddes = utilisateur.id_client;
       id_salon = utilisateur.id_client;
       dest_id = utilisateur.id_client;
-      console.log("dzxs"+iddes)
-      console.log("salon "+id_salon)
-      console.log("destid "+id_salon)
       const messageContainer = document.getElementById('message-container');
       messageContainer.innerHTML = '';
     });
@@ -154,12 +149,10 @@ function startPrivateConversation(dest_id, dest_pseudo) {
     if ((message.emet_id === socket.id && message.dest_id === dest_id) || (message.emet_id === dest_id && message.dest_id === socket.id)) {
       const messageElem = document.createElement('div');
       if (message.emet_id === socket.id) {
-        console.log("ca passe en privée")
         messageElem.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
         messageprivee.appendChild(messageElem);
 
       } else if (message.emet_id === dest_id) {
-        console.log("ca passe en privée")
         messageElem.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+dest_pseudo + ' : ' +message.msg+'</ul>';
         messageprivee.appendChild(messageElem);
         checkUnread();
@@ -186,16 +179,13 @@ function salon(id) {
   messageprivee.innerHTML='';
   messagegeneral.innerHTML='';
 
-  console.log("voici le dest id "+dest_id)
   // Afficher chaque message dans le conteneur de messages
   
   lesMessages.forEach((message) => {
     message.recu =false;
       const messageElem = document.createElement('div');
-      console.log("voici le destid ca mere : "+message.dest_id)
       if(message.dest_id == null){
           if (message.emet_id === socket.id) {
-          console.log("ça passe")
           // Si le message a été envoyé par l'utilisateur courant, le mettre en gras
           messageElem.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
           messagegeneral.appendChild(messageElem);

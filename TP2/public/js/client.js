@@ -20,8 +20,8 @@ const title  = document.getElementById('chat-title');
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   // Création d'un objet 'message' contenant les informations du message à envoyer
-  var laDate = new Date();
-  var message = {
+  const laDate = new Date();
+  const message = {
   emet_id : socket.id, //Id du client socket émetteur du message
   dest_id: iddes, //Id du client socket destinataire du message
   pseudo: pseudoname, //pseudo du client socket émetteur
@@ -29,14 +29,12 @@ form.addEventListener("submit", (e) => {
   date : laDate.toLocaleDateString()+' - '+laDate.toLocaleDateString(),
   recu : false,     //indique le recu
   salon: id_salon // Ajouter l'ID du salon dans le message
-  };
+};
 
-  // Vérification du salon dans lequel le message doit être envoyé
+  // Vérification du salon dans lequel le message doit être envoyé 
   if (id_salon === 'salon') { // si on est dans le salon général
     message.dest_id=null;
-    
-    socket.emit('emission_message', message); // envoyer le message à tous les utilisateurs
-    
+    socket.emit('emission_message', message); // envoyer le message à tous les utilisateurs   
   } else {
     socket.emit('message-prive', message); // envoyer le message à un utilisateur spécifique
   }
@@ -60,11 +58,8 @@ socket.on('reception_message', (contenu) => {
   };
   
   lesMessages.push(messageObj); // Ajouter le message reçu dans le tableau lesMessages[]
-  console.log("messages"+JSON.stringify(messageObj))
-  
+  console.log("messages"+JSON.stringify(messageObj)) 
   salon(contenu.dest_id) // Mettre à jour le salon pour l'émetteur
-
-  
 });
 
 socket.on('reception_utilisateur', (utilisateurs) => {
@@ -80,7 +75,7 @@ socket.on('reception_utilisateur', (utilisateurs) => {
   
   // Parcours de tous les utilisateurs reçus
   utilisateurs.forEach((utilisateur) => {
-// Si un seul utilisateur est en ligne, on affiche un message spécial
+  // Si un seul utilisateur est en ligne, on affiche un message spécial
   if (utilisateurs.length === 1) {
     console.log("voici le pseudo : "+utilisateur.pseudo_client)
     const messageElem = document.createElement('li');
@@ -127,7 +122,6 @@ socket.on('reception_utilisateur', (utilisateurs) => {
 
 
 function startPrivateConversation(dest_id, dest_pseudo) {
-  
   messageprivee.innerHTML = '';
 
   // Créer une nouvelle salle de discussion pour la conversation privée
@@ -167,12 +161,7 @@ function startPrivateConversation(dest_id, dest_pseudo) {
 
 function salon(id) {
   title.innerHTML=""; //remmetre le titre à zeros
-  this.id_salon=id_salon;
-
-  if (id==null){
-  }else{
-    id_salon=id;  //dans le cas des messages privées
-  }
+  id_salon = id || id_salon; //en cas de messages privés 
   
   console.log('voici l id : '+id);
 
@@ -180,12 +169,11 @@ function salon(id) {
   messagegeneral.innerHTML='';
 
   // Afficher chaque message dans le conteneur de messages
-  
   lesMessages.forEach((message) => {
-    message.recu =false;
+      message.recu = false;
       const messageElem = document.createElement('div');
       if(message.dest_id == null){
-          if (message.emet_id === socket.id) {
+        if (message.emet_id === socket.id) {
           // Si le message a été envoyé par l'utilisateur courant, le mettre en gras
           messageElem.innerHTML = '<ul  style="background-color: #665dfe; float:right;" ><b>Vous : </b>' + message.msg+'</ul>';
           messagegeneral.appendChild(messageElem);
@@ -193,7 +181,7 @@ function salon(id) {
           // Si le message a été envoyé par un autre utilisateur, afficher son pseudo
           messageElem.innerHTML = '<ul   style="background-color: #fe5d5d; float:left;" >'+message.pseudo + ' : ' +message.msg+'</ul>';
           messagegeneral.appendChild(messageElem);
-          message.recu =true;
+          message.recu = true;
         }
       }
       
@@ -204,33 +192,25 @@ function salon(id) {
 
 
 function checkUnread() {
- 
-  
   const userListElem = document.getElementById('user-list');
   const unreadCounts = {};
 
   // Compter le nombre de messages non lus pour chaque utilisateur
   lesMessages.forEach((message) => {
     if (message.recu && message.dest_id === socket.id) {
-      if (unreadCounts[message.emet_id] === undefined) {
-        unreadCounts[message.emet_id] = 1;
-      } else {
-        unreadCounts[message.emet_id]++;
-      }
+      unreadCounts[message.emet_id] = unreadCounts[message.emet_id] ? unreadCounts[message.emet_id] + 1 : 1;
     }
   });
 
   // Afficher le nombre de messages non lus à côté de chaque utilisateur dans la liste
   userListElem.childNodes.forEach((userElem) => { 
     const userId = userElem.childNodes[0].getAttribute('onclick').match(/'([^']+)'/)[1];
-      const unreadCount = unreadCounts[userId] || 0;
-      const unreadCountElem = document.createElement('span');
+    const unreadCount = unreadCounts[userId] || 0;
+    const unreadCountElem = document.createElement('span');
     if (userElem.childNodes[0] && userElem.childNodes[0].tagName === "A") {
-     
       unreadCountElem.className = 'unread-count';
       unreadCountElem.innerText = unreadCount > 0 ? `(${unreadCount})` : '';
       userElem.appendChild(unreadCountElem);
-      
       userElem.addEventListener('click', () => {
        /* if (unreadCount > 0) {
           unreadCountElem.innerText = `(${unreadCount - 1})`;
